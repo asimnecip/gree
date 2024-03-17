@@ -8,25 +8,19 @@ use anchor_spl::{
     token::{mint_to, Mint, MintTo, Token, TokenAccount},
 };
 use mpl_token_metadata::types::DataV2;
-use borsh::{BorshDeserialize, BorshSerialize};
 
-declare_id!("6fGw6pYK2XFP8WG3URHPAosAncJYCavE2JhwfZ9Muw7d");
+declare_id!("GoVMQGBCHedXGAyVC2aAo7G9Bm4tusTWSRmtDVRWpsgQ");
+
 
 #[program]
 pub mod gree {
     use super::*;
 
-    #[derive(BorshSerialize, BorshDeserialize, Clone)]
-    pub struct Creator {
-        pub address: Pubkey,
-        pub share: u8,
-    }
     pub fn init_nft(
         ctx: Context<InitNFT>,
         name: String,
         symbol: String,
         uri: String,
-        creators: Vec<Creator>,
     ) -> Result<()> {
         // Mint NFT with minimized variable scope
         {
@@ -39,23 +33,13 @@ pub mod gree {
             mint_to(cpi_context, 1)?;
         }
 
-        let creators_option = if !creators.is_empty() {
-            Some(creators.iter().map(|creator| mpl_token_metadata::state::Creator {
-                address: creator.address,
-                verified: false, // Set to true if verification is done off-chain
-                share: creator.share,
-            }).collect())
-        } else {
-            None
-        };
-
         // Create metadata with minimized data structure scope
         let data_v2 = DataV2 {
             name,
             symbol,
             uri,
             seller_fee_basis_points: 0,
-            creators: creators_option,
+            creators: None,
             collection: None,
             uses: None,
         };
@@ -119,6 +103,7 @@ pub struct InitNFT<'info> {
         associated_token::authority = signer
     )]
     pub associated_token_account: Account<'info, TokenAccount>,
+    
     /// CHECK:
     #[account(
         mut,

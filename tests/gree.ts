@@ -18,8 +18,7 @@ import {
 	ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 
-
-describe("mpl-nft-anchor", async () => {
+describe("gree", async () => {
 	// Configured the client to use the devnet cluster.
 	const provider = anchor.AnchorProvider.env();
 	anchor.setProvider(provider);
@@ -52,13 +51,17 @@ describe("mpl-nft-anchor", async () => {
 
 	const metadata = {
 		name: "GLC-20240317",
-		symbol: "GLC",
-		uri: "ipfs://bafkreidsv7qyevjbnsncrn7peogr6rp6bfclz3exx2vkunsd5egx7bd5wqs",
+		symbol: "GRLC",
+		uri: "ipfs://bafkreidsv7qyevjbnsncrn7peogr6rp6bfclz3exx2vkunsd5egx7bd5wq",
 	};
 
 	it("mints nft!", async () => {
 		const tx = await program.methods
-			.initNft(metadata.name, metadata.symbol, metadata.uri)
+			.initNft(
+				metadata.name, 
+				metadata.symbol, 
+				metadata.uri,
+			)
 			.accounts({
 				signer: provider.publicKey,
 				mint: mint.publicKey,
