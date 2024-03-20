@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js'
 
 interface INFTMetadata {
   name: string;
   symbol: string;
   imageUrl: string;
 }
+const connection = new Connection(clusterApiUrl("devnet"));
+const metaplex = Metaplex.make(connection);
 
 const Inventory: React.FC = () => {
   const [nfts, setNfts] = useState<INFTMetadata[]>([]);
@@ -14,7 +16,8 @@ const Inventory: React.FC = () => {
 
   const fetchNFTs = async () => {
     setIsLoading(true);
-    const connection = new Connection('https://api.devnet.solana.com');
+    console.log(metaplex);
+
     const walletAddress = new PublicKey('BGRPxYe1cyLJz4vS8kNCUPfwJpaRgHVX3JAZ6JbXSr2x'); // Replace with the wallet address
 
     try {
@@ -23,19 +26,19 @@ const Inventory: React.FC = () => {
         programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       });
 
-      console.log(ownedTokensResponse);
       const mintAddresses = ownedTokensResponse.value.map(
         (accountInfo) => accountInfo.account.data.parsed.info.mint
       );
 
       const metadataPromises = mintAddresses.map(async (mint) => {
 
-        const encodedMetadata:any = await connection.getAccountInfo(new PublicKey(mint));
-        console.log("hey");
-        const metadataBuffer = Buffer.from(encodedMetadata.data[0], 'base64');
+        // const encodedMetadata:any = await connection.getAccountInfoAndContext(new PublicKey(mint));
+        const metadataPda = metaplex.nfts().pdas().metadata({ mint: mint });
 
-        const metadata = Metadata.deserialize(metadataBuffer);
-        console.log(encodedMetadata);
+        console.log(metadataPda);
+        // const metadataBuffer = Buffer.from(encodedMetadata.data[0], 'base64');
+
+        // const metadata = Metadata.deserialize(metadataBuffer);
 
         // return {
         //   name: externalMetadata.name,
